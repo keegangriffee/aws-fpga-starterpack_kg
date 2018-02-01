@@ -1,15 +1,15 @@
-module cl_dram_perf
+module cl_pcie_perf
 (
   `include "cl_ports.vh"
 );
 
 `include "cl_common_defines.vh"
 `include "cl_id_defines.vh"
-`include "cl_dram_perf_defines.vh"
+`include "cl_pcie_perf_defines.vh"
 
 logic rst_main_n_sync;
 // Tie off unused signals
-//`include "unused_flr_template.inc"
+`include "unused_flr_template.inc"
 `include "unused_ddr_a_b_d_template.inc"
 `include "unused_ddr_c_template.inc"
 `include "unused_pcim_template.inc"
@@ -26,36 +26,16 @@ assign cl_sh_status1 = 32'heeee_ee00;
 
 // reset synchronization
 logic pre_sync_rst_n;
-(* dont_touch = "true" *) logic pipe_rst_n;
-lib_pipe #(.WIDTH(1), .STAGES(4)) PIPE_RST_N (
-  .clk(clk_main_a0),
-  .rst_n(1'b1),
-  .in_bus(rst_main_n),
-  .out_bus(pipe_rst_n)
-);
 
-always_ff @(negedge pipe_rst_n or posedge clk_main_a0)
-  if (!pipe_rst_n) begin
-      pre_sync_rst_n  <= 0;
-      rst_main_n_sync <= 0;
-    end 
-  else begin
-        pre_sync_rst_n  <= 1;
-        rst_main_n_sync <= pre_sync_rst_n;
-    end
-
-
-logic sh_cl_flr_assert_q;
-always_ff @ (posedge clk_main_a0) begin
-  if (!rst_main_n_sync) begin
-    sh_cl_flr_assert_q <= 0;
-    cl_sh_flr_done <= 0;
-  end
-  else begin
-    sh_cl_flr_assert_q <= sh_cl_flr_assert;
-    cl_sh_flr_done <= sh_cl_flr_assert_q && !cl_sh_flr_done;
-  end
-end
+always_ff @(negedge rst_main_n or posedge clk_main_a0)
+	if (!rst_main_n) begin
+     	pre_sync_rst_n  <= 0;
+     	rst_main_n_sync <= 0;
+  	end 
+	else begin
+      	pre_sync_rst_n  <= 1;
+      	rst_main_n_sync <= pre_sync_rst_n;
+  	end
 
 // DRAM
 axi4_bus_t dma_pcis_bus();

@@ -127,7 +127,6 @@ always_ff @ (posedge clk) begin
 		end
 	end
  	else begin
-		axi.rid <= 0;
 		arid_q <= 0;
 		araddr_q <= 0;
 		arlen_q <= 0;

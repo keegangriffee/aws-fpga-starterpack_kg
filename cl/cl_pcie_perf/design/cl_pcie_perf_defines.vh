@@ -1,5 +1,5 @@
-`ifndef CL_LED_DIP
-`define CL_LED_DIP
+`ifndef CL_PCIE_PERF
+`define CL_PCIE_PERF
 
 `define CL_NAME cl_pcie_perf
 
