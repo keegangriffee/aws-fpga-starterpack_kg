@@ -108,26 +108,8 @@ int main(int argc, char ** argv)
 			double dma_write_avg = MathHelper::average(dma_write_latency, num_trial);
 			double dma_write_stdev = MathHelper::stdev(dma_write_latency, num_trial);
 				
-			double cl_read_avg = MathHelper::average(cl_read_latency, num_trial);
-			double cl_read_stdev = MathHelper::stdev(cl_read_latency, num_trial);
-			double cl_write_avg = MathHelper::average(cl_write_latency, num_trial);
-			double cl_write_stdev = MathHelper::stdev(cl_write_latency, num_trial);
-			
-			double cl_read_clk_count_avg = MathHelper::average(cl_read_clk_count, num_trial);
-			double cl_read_clk_count_stdev = MathHelper::stdev(cl_read_clk_count, num_trial);
-			
-			double cl_write_clk_count_avg = MathHelper::average(cl_write_clk_count, num_trial);
-			double cl_write_clk_count_stdev = MathHelper::stdev(cl_write_clk_count, num_trial);
-	
 			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg*1000, dma_read_stdev*1000);
 			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg*1000, dma_write_stdev*1000);
-			printf("cl,read,%lu,%f,%f\r\n", burst_len, cl_read_avg*1000, cl_read_stdev*1000);
-			printf("cl,write,%lu,%f,%f\r\n", burst_len, cl_write_avg*1000, cl_write_stdev*1000);
-			printf("internal_clk,read,%lu,%f,%f\r\n",burst_len, cl_read_clk_count_avg/CLK_FREQ*1000,
-				cl_read_clk_count_stdev/CLK_FREQ*1000);
-			printf("internal_clk,write,%lu,%f,%f\r\n",burst_len, cl_write_clk_count_avg/CLK_FREQ*1000,
-				cl_write_clk_count_stdev/CLK_FREQ*1000);
-
 
 			burst_len *= 2;
 		}
