@@ -62,6 +62,9 @@ void DMAController::init(int slot_id)
  *	@param channel DMA channel number.
  *	@param offset offset address on CL.
  */
+#include <iostream>
+#include <cstdlib>
+
 void DMAController::write(char * buf, size_t buf_size, int channel, size_t offset)
 {
 	if (_fd < 0) throw runtime_error("File descriptor is not open.\r\n");
@@ -82,9 +85,12 @@ void DMAController::write(char * buf, size_t buf_size, int channel, size_t offse
 		}
 
 	 	write_offset += rc;
+		printf("characters written: %d", rc);
 	}
-
+	stopwatch->start();
 	fsync(_fd);
+	double timeFsync = stopwatch->stop();
+	printf("fsync runtime: %f", timeFsync);
 }
 
 /*
