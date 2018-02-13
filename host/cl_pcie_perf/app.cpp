@@ -100,6 +100,13 @@ int main(int argc, char ** argv)
 				stopwatch->start();
 				dmaController->read(buf2, burst_len*BYTE_PER_BURST, 0, 0);	
 				dma_read_latency[j] = stopwatch->stop();
+
+				int n;
+
+  				n=memcmp ( buf1, buf2, sizeof(buf1) );
+  				if (n != 0) {
+  					prinf("The read did not match the writen buffer.\r\n");
+  				}
 				
 			}
 
