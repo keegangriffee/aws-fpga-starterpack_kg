@@ -16,6 +16,8 @@
 #include "fpga_mgmt.h"
 #include "stopwatch.h"
 #include "math_helper.hpp"
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 using namespace std::this_thread;
 using namespace std::chrono;
@@ -87,7 +89,8 @@ int main(int argc, char ** argv)
 				// init random char buffer
 				for (size_t k = 0; k < burst_len*BYTE_PER_BURST; k++)
 				{
-					buf1[k] = (char) (97 + (rand() % 26));
+					//buf1[k] = (char) (97 + (rand() % 26));
+					buf1[k] = 1;
 				}
 				
 				// DMA write
@@ -105,8 +108,14 @@ int main(int argc, char ** argv)
 
   				n=memcmp ( buf1, buf2, sizeof(buf1) );
   				if (n != 0) {
-  					prinf("The read did not match the writen buffer.\r\n");
-  				}
+  					printf("The read did not match the written buffer.\r\n");
+					printf("Buffer 1 contents:\r\n");
+					printf("%.*s\r\n",burst_len*BYTE_PER_BURST,buf1);
+					printf("Buffer 2 contents:\r\n");
+					printf("%.*s\r\n",burst_len*BYTE_PER_BURST,buf2);
+  				} else {
+					printf("It worked.\r\n");
+				}
 				
 			}
 
