@@ -1,8 +1,8 @@
 /**
- *	Host application for cl_dram_perf	
+ *	Host application for cl_pcie_perf	
  *
  *	@author Tommy Jung
- *			Keegan Griffee
+ *	with modifications for PCIE testing by Keegan Griffee
  */
 
 #include <iostream>
@@ -33,6 +33,7 @@ using namespace std::chrono;
 #define BUF_SIZE (1ULL << 34)
 
 const int SLOT_ID = 0;
+const int NUM_EARLY_TRIAL = 50000;
 const int NUM_TRIAL = 10;
 const int BYTE_PER_BURST = 64;
 const int CLK_FREQ = 250000000;
@@ -56,67 +57,42 @@ int main(int argc, char ** argv)
 		printf("Vendor ID: 0x%x\r\n", info->spec.map[FPGA_APP_PF].vendor_id);
 		printf("Device ID: 0x%x\r\n", info->spec.map[FPGA_APP_PF].device_id);
 
-		/*
-		// attach pciHandler.
-		pciHandler->attach(SLOT_ID, FPGA_APP_PF, APP_PF_BAR0);
-		*/
-
 		// init dmaController.
 		dmaController->init(SLOT_ID);
 
-		/*
-		// set start_addr
-		pciHandler->poke(START_ADDR_REG_ADDR, 0);
-		uint32_t start_addr_read = pciHandler->peek(START_ADDR_REG_ADDR);
-		if (start_addr_read != 0)
-		{
-			throw runtime_error("failed to write start_addr\r\n");
-		}
-		*/
-
-		// real test
+		// Do increasingly larger transfer sizes (bytes per burst) and measure
+		// the performance
 		uint32_t ocl_read = 0;	
 		size_t burst_len = 1;
 		for (int i = 0; i < 29; i++)
 		{
-			int num_trial = (i < 12) ? NUM_TRIAL * 100 : NUM_TRIAL;	
+			int num_trial = (i < 12) ? NUM_TRIAL * NUM_EARLY_TRIAL : NUM_TRIAL;	
 
-			double dma_read_latency[NUM_TRIAL*100] = {0};
-			double dma_write_latency[NUM_TRIAL*100] = {0};
+			double dma_read_latency[NUM_TRIAL*NUM_EARLY_TRIAL] = {0};
+			double dma_write_latency[NUM_TRIAL*NUM_EARLY_TRIAL] = {0};
 
 			for (int j = 0; j < num_trial; j++)
 			{
 				// init random char buffer
 				for (size_t k = 0; k < burst_len*BYTE_PER_BURST; k++)
 				{
-					//buf1[k] = (char) (97 + (rand() % 26));
-					buf1[k] = 1;
+					buf1[k] = (char) (97 + (rand() % 26));
 				}
-				
+
 				// DMA write
+				int addr = 0;
+				// Uncomment if testing random scattered addressing
+				//int addr = rand();
 				stopwatch->start();
-				dmaController->write(buf1, burst_len*BYTE_PER_BURST, 0, 0);
+				dmaController->write(buf1, burst_len*BYTE_PER_BURST, 0, addr);
 				dma_write_latency[j] = stopwatch->stop();
 		
 
 				// DMA read
 				stopwatch->start();
-				dmaController->read(buf2, burst_len*BYTE_PER_BURST, 0, 0);	
+				dmaController->read(buf2, burst_len*BYTE_PER_BURST, 0, addr);	
 				dma_read_latency[j] = stopwatch->stop();
 
-				int n;
-
-  				n=memcmp ( buf1, buf2, sizeof(buf1) );
-  				if (n != 0) {
-  					printf("The read did not match the written buffer.\r\n");
-					printf("Buffer 1 contents:\r\n");
-					printf("%.*s\r\n",burst_len*BYTE_PER_BURST,buf1);
-					printf("Buffer 2 contents:\r\n");
-					printf("%.*s\r\n",burst_len*BYTE_PER_BURST,buf2);
-  				} else {
-					printf("It worked.\r\n");
-				}
-				
 			}
 
 			double dma_read_avg = MathHelper::average(dma_read_latency, num_trial);
@@ -141,7 +117,6 @@ int main(int argc, char ** argv)
 	free(buf1);
 	free(buf2);
 	delete fabricManager;
-	//delete pciHandler;
 	delete dmaController;
 	delete stopwatch;
 

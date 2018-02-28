@@ -88,19 +88,19 @@ void DMAController::write(char * buf, size_t buf_size, int channel, size_t offse
 		}
 
 	 	write_offset += rc;
-		// printf("characters written: %d", rc);
 	}
 
-	double pwrite_time = stopwatch_long->stop();
-	printf("pwrite runtime: %f\r\n", pwrite_time*1000);
-	delete stopwatch_long;
+	// Used for calculating the performance impact of fsync
+	//double pwrite_time = stopwatch_long->stop();
+	//printf("pwrite runtime: %f\r\n", pwrite_time*1000);
+	//delete stopwatch_long;
 
-	auto stopwatch = new Stopwatch();
-	stopwatch->start();
+	//auto stopwatch = new Stopwatch();
+	//stopwatch->start();
 	fsync(_fd);
-	double timeFsync = stopwatch->stop();
-	printf("fsync runtime: %f\r\n", timeFsync*1000);
-	delete stopwatch;
+	//double timeFsync = stopwatch->stop();
+	//printf("fsync runtime: %f\r\n", timeFsync*1000);
+	//delete stopwatch;
 }
 
 /*
